@@ -26,24 +26,24 @@ async def add_expense_tool(
     return await add_expense(date, amount, category, subcategory, note)
 
 @mcp.tool()
-def get_expenses_tool():
-    return get_expenses()
+async def get_expenses_tool():
+    return await get_expenses()
 
 @mcp.tool()
-def total_expenses_tool():
-    return total_expenses()
+async def total_expenses_tool():
+    return await total_expenses()
 
 @mcp.tool()
-def delete_expense_tool(expense_id: int):
-    return delete_expense(expense_id)
+async def delete_expense_tool(expense_id: int):
+    return await delete_expense(expense_id)
 
 @mcp.tool()
-def range_expenses_tool(start_date: str, end_date: str):
-    return range_expenses(start_date, end_date)
+async def range_expenses_tool(start_date: str, end_date: str):
+    return await range_expenses(start_date, end_date)
 
 @mcp.tool()
-def summary_tool():
-    return summary()
+async def summary_tool():
+    return await summary()
 
 if __name__ == "__main__":
     mcp.run(port=8000, transport="http", host="0.0.0.0")
