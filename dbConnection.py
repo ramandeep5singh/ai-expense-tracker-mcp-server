@@ -26,4 +26,9 @@ async def init_db():
 
 
 async def get_connection():
+    global pool
+    
+    if pool is None:
+        pool = await init_db()
+
     return pool

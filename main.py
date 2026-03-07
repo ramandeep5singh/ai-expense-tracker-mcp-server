@@ -12,10 +12,6 @@ from dbConnection import init_db
 #create a fastmcp server instance
 mcp = FastMCP(name="Expense Tracker Server")
 
-@mcp.on_startup
-async def startup():
-    await init_db()
-
 @mcp.tool()
 async def add_expense_tool(
     date: str, 
