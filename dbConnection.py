@@ -1,15 +1,17 @@
 import psycopg2
+import os
 
 def get_connection():
     try:
         connection = psycopg2.connect(
-            host="localhost",
-            database="db_expense_tracker",
-            user="postgres",
-            password="root",
-            port=5432
+            host=os.getenv("DB_HOST"),
+            database=os.getenv("DB_NAME"),
+            user=os.getenv("DB_USER"),
+            password=os.getenv("DB_PASSWORD"),
+            port=os.getenv("DB_PORT", "5432"),
+            sslmode="require"
         )
         return connection
-    except (Exception, psycopg2.Error) as error:
-        print("Error while connecting to PostgreSQL", error)
+    except Exception as e:
+        print("Database connection error:", e)
         return None

@@ -40,4 +40,4 @@ def summary_tool():
     return summary()
 
 if __name__ == "__main__":
-    mcp.run()
+    mcp.run(port=8000, transport="http", host="0.0.0.0")
