@@ -7,17 +7,23 @@ from tools.deleteExpense import delete_expense
 from tools.rangeExpenses import range_expenses
 from tools.summary import summary
 
+from dbConnection import init_db
+
 #create a fastmcp server instance
 mcp = FastMCP(name="Expense Tracker Server")
 
+@mcp.on_startup
+async def startup():
+    await init_db()
+
 @mcp.tool()
-def add_expense_tool(
+async def add_expense_tool(
     date: str, 
     amount: float, 
     category: str, 
     subcategory: str, 
     note: str):
-    return add_expense(date, amount, category, subcategory, note)
+    return await add_expense(date, amount, category, subcategory, note)
 
 @mcp.tool()
 def get_expenses_tool():
