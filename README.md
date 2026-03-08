@@ -25,12 +25,24 @@ Both approaches are supported depending on your setup.
 
 ---
 
+# Project Architecture
+
+Claude Desktop
+↓
+Remote MCP Server (FastMCP Cloud)
+↓
+Async Python Tools
+↓
+Neon PostgreSQL Database
+
+---
+
 # Project Structure
 
 expense-tracker-mcp-server
 
 * main.py → MCP server and tool registration
-* dbConnection.py → database connection logic
+* dbConnection.py → asynchronous database connection logic
 * tools/
 
   * addExpense.py
@@ -56,6 +68,8 @@ Columns:
 * note
 
 Example:
+
+```
 CREATE TABLE expenses (
  id SERIAL PRIMARY KEY,
  date DATE,
@@ -64,6 +78,75 @@ CREATE TABLE expenses (
  subcategory VARCHAR(100),
  note TEXT
 );
+```
+
+---
+
+# Development Journey
+
+### 1. Initial Local MCP Server
+
+The project began as a **local MCP server** using FastMCP with a PostgreSQL database.
+
+Tools were implemented for:
+
+* Adding expenses
+* Retrieving expenses
+* Deleting expenses
+* Viewing summaries
+
+The database connection was handled using **psycopg2**.
+
+---
+
+### 2. Code Refactoring
+
+A separate module `dbConnection.py` was created to manage database connections so that all tools could reuse the same connection logic.
+
+This improved code maintainability and avoided duplication.
+
+---
+
+### 3. Converting to Asynchronous Server
+
+The original implementation was **synchronous**, which blocked the server during database operations.
+
+To improve performance and scalability:
+
+* `psycopg2` was replaced with **asyncpg**
+* All database functions were converted to **async functions**
+* A PostgreSQL **connection pool** was implemented
+
+This allows multiple MCP tool requests to run concurrently.
+
+---
+
+### 4. Migrating to Cloud Database
+
+Since the server was later deployed remotely, the local database could not be used.
+
+The project migrated to **Neon PostgreSQL**, a serverless cloud database.
+
+Environment variables were configured in the deployment environment to connect securely.
+
+---
+
+### 5. Remote MCP Server Deployment
+
+The MCP server was deployed using **FastMCP Cloud**.
+
+The GitHub repository was connected to the platform so that:
+
+* Every commit automatically triggers a new deployment
+* The MCP endpoint stays updated with the latest code
+
+---
+
+### 6. Connecting Claude Desktop
+
+The deployed MCP server requires authentication.
+
+Claude Desktop was connected using the **`.dxt` integration file**, which automatically configures the MCP server connection.
 
 ---
 
@@ -74,48 +157,27 @@ CREATE TABLE expenses (
 Create environment:
 python -m venv .venv
 
-
 Activate (Windows):
 .venv\Scripts\activate
 
 Install dependencies:
-pip install psycopg2-binary fastmcp
-
-Claude MCP configuration:
-{
-  "mcpServers": {
-    "expense-tracker": {
-      "command": "C:\\expense-tracker-mcp-server\\.venv\\Scripts\\python.exe",
-      "args": ["C:\\expense-tracker-mcp-server\\main.py"]
-    }
-  }
-}
+pip install fastmcp asyncpg
 
 ---
 
 ## Option 2 — Using Global Python Environment
 
 Install dependencies globally:
-pip install psycopg2-binary fastmcp
-
-Claude MCP configuration:
-{
-  "mcpServers": {
-    "expense-tracker": {
-      "command": "python",
-      "args": ["C:\\expense-tracker-mcp-server\\main.py"]
-    }
-  }
-}
+pip install fastmcp asyncpg
 
 ---
 
-# Running the Server
+# Running the Server Locally
 
 Start the MCP server:
 python main.py
 
-Restart **Claude Desktop** after updating the MCP configuration.
+Restart **Claude Desktop** after updating MCP configuration.
 
 ---
 
@@ -123,18 +185,10 @@ Restart **Claude Desktop** after updating the MCP configuration.
 
 * `add_expense` → Add a new expense
 * `get_expenses` → Retrieve all expenses
-* `total_expenses` → Total spending by category
+* `total_expenses` → Calculate total spending
 * `delete_expense` → Remove an expense
 * `range_expenses` → Expenses within a date range
-* `summary` → Monthly spending summary
-
----
-
-# Key Takeaways
-
-* MCP allows AI assistants to control external systems via structured tools.
-* Proper Python environment configuration is essential for MCP servers.
-* Separating database logic and tool logic improves maintainability.
+* `summary` → Category-wise spending summary
 
 ---
 
@@ -142,6 +196,17 @@ Restart **Claude Desktop** after updating the MCP configuration.
 
 * Python
 * FastMCP
+* asyncpg
 * PostgreSQL
+* Neon Database
 * Claude Desktop
 * Model Context Protocol (MCP)
+
+---
+
+# Key Takeaways
+
+* MCP enables AI assistants to interact with real systems using structured tools.
+* Asynchronous database access significantly improves MCP server scalability.
+* Cloud deployment requires environment variables and a remote database.
+* Proper separation of database logic and tool logic improves maintainability.
