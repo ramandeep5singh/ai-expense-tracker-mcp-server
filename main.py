@@ -42,4 +42,4 @@ async def summary_tool():
     return await summary()
 
 if __name__ == "__main__":
-    mcp.run(port=8000, transport="http", host="0.0.0.0")
+    mcp.run()

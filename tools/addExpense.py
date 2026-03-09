@@ -1,3 +1,5 @@
+from datetime import datetime
+
 from dbConnection import get_connection
 
 async def add_expense(date, amount, category, subcategory, note):
@@ -15,9 +17,11 @@ async def add_expense(date, amount, category, subcategory, note):
                 VALUES ($1, $2, $3, $4, $5)
             """
 
+            date_obj = datetime.strptime(date, "%Y-%m-%d").date()
+
             await connection.execute(
                 add_expense_query,
-                date,
+                date_obj,
                 amount,
                 category,
                 subcategory,
